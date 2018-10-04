@@ -96,6 +96,6 @@ with tf.Session() as sess:
         acc_valid = accuracy.eval(feed_dict={X: X_valid, y: y_valid}) # 검증데이터를 얼마나 잘 맞추는지
         print(epoch, "배치 데이터 정확도:", acc_batch, "검증 세트 정확도:", acc_valid)
 
-    save_path = saver.save(sess, "./fnn_for_mnist_result/my_model_final.ckpt")
+    save_path = saver.save(sess, "./fnn_with_BN_result/my_model_final.ckpt")
 
 sess.close()
