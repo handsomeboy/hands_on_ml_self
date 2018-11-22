@@ -49,8 +49,8 @@ with tf.name_scope("dnn"):
 # 2. cost function결정 - cross entropy함수를 이용해서 output(logits)과 target(y)의 오차를 계산,
 #   이후 모든 샘플에 대한 cross entropy 평균을 계산해서 반환
 with tf.name_scope("loss"):
-    xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
-    loss = tf.reduce_mean(xentropy, name="loss")
+    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
+    loss = tf.reduce_mean(cross_entropy, name="loss")
 
 # 3. optimizer결정 - GradientDescentOptimizer 이용
 learning_rate = 0.001

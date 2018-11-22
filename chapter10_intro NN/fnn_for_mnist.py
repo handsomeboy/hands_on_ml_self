@@ -29,7 +29,7 @@ y = tf.placeholder(tf.int32, shape=(None), name="y")
 # 구성단계
 # 1. 신경망 디자인 - hidden layer:2개 (act. fn.: Relu), output:logits을 받아서 softmax에 통과시킴
 with tf.name_scope("dnn"):
-    hidden1 = tf.layers.dense(X, n_hidden1, name="hidden1", activation=tf.nn.relu)    
+    hidden1 = tf.layers.dense(X, n_hidden1, name="hidden1", activation=tf.nn.relu)
     hidden2 = tf.layers.dense(hidden1, n_hidden2, name="hidden2", activation=tf.nn.relu)
     logits = tf.layers.dense(hidden2, n_outputs, name="outputs")
     y_proba = tf.nn.softmax(logits)
@@ -84,4 +84,4 @@ with tf.Session() as sess:
         acc_valid = accuracy.eval(feed_dict={X: X_valid, y: y_valid}) # 검증데이터를 얼마나 잘 맞추는지
         print(epoch, "배치 데이터 정확도:", acc_batch, "검증 세트 정확도:", acc_valid)
 
-    save_path = saver.save(sess, "./fnn_for_mnist_result/my_model_final.ckpt")
+    save_path = saver.save(sess, "./fnn_for_mnist_result/my_model_final")    
