@@ -91,6 +91,7 @@ with tf.name_scope("encoder"):
 
 with tf.name_scope("latent"):
     mean = tf.layers.dense(hidden4, n_latent, kernel_initializer=initializer, activation=None, name='latent_mu')
+    # standard deviation는 양수이므로 activation function으로 relu를 사용한다
     sigma = tf.layers.dense(hidden4, n_latent, kernel_initializer=initializer, activation=tf.nn.relu, name='latent_sigma')
     noise = tf.random_normal(tf.shape(sigma), dtype=tf.float32)
     latent = mean + sigma * noise
