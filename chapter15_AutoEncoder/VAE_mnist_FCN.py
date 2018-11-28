@@ -61,13 +61,13 @@ reset_graph()
 
 n_inputs = 28 * 28
 # encoder spec.
-n_hidden1 = 500
+n_hidden1 = 1000
 n_hidden2 = 500
 n_hidden3 = 250
 n_hidden4 = 125
 
 # coding unit (latent vector, z)
-n_latent = 50
+n_latent = 25
 
 # decoder spec.
 n_hidden6 = n_hidden4 # encoder, decoder를 대칭적으로 생성하기 위함
@@ -84,22 +84,22 @@ with tf.name_scope("inputs"):
     X = tf.placeholder(tf.float32, [None, n_inputs])
 
 with tf.name_scope("encoder"):
-    hidden1 = tf.layers.dense(X, n_hidden1, kernel_initializer=initializer, activation=tf.nn.elu, name='encoder_hidden1')
-    hidden2 = tf.layers.dense(hidden1, n_hidden2, kernel_initializer=initializer, activation=tf.nn.elu, name='encoder_hidden2')
-    hidden3 = tf.layers.dense(hidden2, n_hidden3, kernel_initializer=initializer, activation=tf.nn.elu, name='encoder_hidden3')
-    hidden4 = tf.layers.dense(hidden3, n_hidden4, kernel_initializer=initializer, activation=tf.nn.elu, name='encoder_hidden4')
+    hidden1 = tf.layers.dense(X, n_hidden1, kernel_initializer=initializer, activation=tf.nn.relu, name='encoder_hidden1')
+    hidden2 = tf.layers.dense(hidden1, n_hidden2, kernel_initializer=initializer, activation=tf.nn.relu, name='encoder_hidden2')
+    hidden3 = tf.layers.dense(hidden2, n_hidden3, kernel_initializer=initializer, activation=tf.nn.relu, name='encoder_hidden3')
+    hidden4 = tf.layers.dense(hidden3, n_hidden4, kernel_initializer=initializer, activation=tf.nn.relu, name='encoder_hidden4')
 
 with tf.name_scope("latent"):
     mean = tf.layers.dense(hidden4, n_latent, kernel_initializer=initializer, activation=None, name='latent_mu')
-    sigma = tf.layers.dense(hidden4, n_latent, kernel_initializer=initializer, activation=None, name='latent_sigma')
+    sigma = tf.layers.dense(hidden4, n_latent, kernel_initializer=initializer, activation=tf.nn.relu, name='latent_sigma')
     noise = tf.random_normal(tf.shape(sigma), dtype=tf.float32)
     latent = mean + sigma * noise
 
 with tf.name_scope("decoder"):
-    hidden6 = tf.layers.dense(latent, n_hidden6, kernel_initializer=initializer, activation=tf.nn.elu, name='decoder_hidden6')
-    hidden7 = tf.layers.dense(hidden6, n_hidden7, kernel_initializer=initializer, activation=tf.nn.elu, name='decoder_hidden7')
-    hidden8 = tf.layers.dense(hidden7, n_hidden8, kernel_initializer=initializer, activation=tf.nn.elu, name='decoder_hidden8')
-    hidden9 = tf.layers.dense(hidden8, n_hidden9, kernel_initializer=initializer, activation=tf.nn.elu, name='decoder_hidden9')
+    hidden6 = tf.layers.dense(latent, n_hidden6, kernel_initializer=initializer, activation=tf.nn.relu, name='decoder_hidden6')
+    hidden7 = tf.layers.dense(hidden6, n_hidden7, kernel_initializer=initializer, activation=tf.nn.relu, name='decoder_hidden7')
+    hidden8 = tf.layers.dense(hidden7, n_hidden8, kernel_initializer=initializer, activation=tf.nn.relu, name='decoder_hidden8')
+    hidden9 = tf.layers.dense(hidden8, n_hidden9, kernel_initializer=initializer, activation=tf.nn.relu, name='decoder_hidden9')
     logits = tf.layers.dense(hidden9, n_outputs, kernel_initializer=initializer, activation=None)
     outputs = tf.sigmoid(logits)
 
@@ -147,30 +147,11 @@ with tf.Session() as sess:
         new_saver = tf.train.import_meta_graph(TITLE + '.meta')
         new_saver.restore(sess, tf.train.latest_checkpoint('./'))
 
-        X_for_test = X_valid[:50]
-        # test_mean = mean.eval(feed_dict={X: X_for_test})
-        # test_sigma = sigma.eval(feed_dict={X: X_for_test})
+        codings_rnd = np.random.normal(size=[n_digits, n_latent])
+        outputs_val = outputs.eval(feed_dict={latent: codings_rnd})
 
-        # codings_rnd = np.random.normal(size=[n_digits, n_latent])
-        # outputs_val = outputs.eval(feed_dict={latent: codings_rnd})
-
-
-        for i in range(n_digits):
-            t = 0.5 + i*0.000001
-            test1 = np.full((n_digits, n_latent), 0)
-            test2 = np.full((n_digits, n_latent), t)
-            outputs_val = outputs.eval(feed_dict={mean: test1, sigma: test2})
-
-
-plt.figure(figsize=(8,50)) # 책에는 없음
+plt.figure(figsize=(8,50))
 for iteration in range(n_digits):
-    plt.subplot(n_digits/1, 1, iteration + 1)
+    plt.subplot(n_digits, 10, iteration + 1)
     plot_image(outputs_val[iteration])
 plt.show()
-
-# n_rows = 10
-# n_cols = 10
-# # plot_multiple_images(outputs_val.reshape(-1, 28, 28), n_rows, n_cols)
-# plot_multiple_images(outputs_val.reshape(-1, 28, 28), n_rows, n_cols)
-# save_fig("plot")
-# plt.show()
